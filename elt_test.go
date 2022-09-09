@@ -9,7 +9,6 @@ type test struct {
    return_elements int
    kind int
 	symbol string
-	value []Value
 }
 
 func (t *test)Precedence()(int) { return t.precedence }
@@ -56,15 +55,6 @@ var op_add *test = &test{
 	symbol: "+",
 }
 
-var op_sub *test = &test{
-   precedence: 1,
-   associativity: Associativity_left,
-   needs_elements: 2,
-   return_elements: 1,
-   kind: Kind_operator,
-	symbol: "-",
-}
-
 var op_mul *test = &test{
    precedence: 2,
    associativity: Associativity_left,
@@ -72,15 +62,6 @@ var op_mul *test = &test{
    return_elements: 1,
    kind: Kind_operator,
 	symbol: "*",
-}
-
-var op_div *test = &test{
-   precedence: 2,
-   associativity: Associativity_left,
-   needs_elements: 2,
-   return_elements: 1,
-   kind: Kind_operator,
-	symbol: "/",
 }
 
 var op_or *test = &test{
@@ -310,7 +291,7 @@ func Test_expr(t *testing.T) {
 
 	e = New()
 	e.Append(op_23)
-	err = e.Append(op_open)
+	e.Append(op_open)
 	e.Append(op_add)
 	e.Append(op_24)
 	e.Append(op_mul)
@@ -389,8 +370,12 @@ func Test_expr(t *testing.T) {
 	e.Append(op_25)
 	e.Finalize()
 	v, err = e.Exec()
-	if v.Float64() != 8.3 {
-		t.Errorf("Expect result 8.3, got %f", v.Float64())
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	} else {
+		if v.Float64() != 8.3 {
+			t.Errorf("Expect result 8.3, got %f", v.Float64())
+		}
 	}
 
 	e = New()
@@ -421,7 +406,11 @@ func Test_expr(t *testing.T) {
 	e.Append(op_true)
 	e.Finalize()
 	v, err = e.Exec()
-	if !v.Bool() {
-		t.Errorf("Expect result true, got %t", v.Bool())
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	} else {
+		if !v.Bool() {
+			t.Errorf("Expect result true, got %t", v.Bool())
+		}
 	}
 }
