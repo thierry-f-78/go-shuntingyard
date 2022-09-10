@@ -272,7 +272,10 @@ func Test_expr(t *testing.T) {
 	e.Append(op_23)
 	e.Append(op_add)
 	e.Append(op_24)
-	e.Finalize()
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
 	verif(t, e, "2.3|2.4|+|")
 
 	e = New()
@@ -281,7 +284,10 @@ func Test_expr(t *testing.T) {
 	e.Append(op_24)
 	e.Append(op_mul)
 	e.Append(op_25)
-	e.Finalize()
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
 	verif(t, e, "2.3|2.4|2.5|*|+|")
 
 	e = New()
@@ -321,7 +327,10 @@ func Test_expr(t *testing.T) {
 	e.Append(op_close)
 	e.Append(op_mul)
 	e.Append(op_25)
-	e.Finalize()
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
 	verif(t, e, "2.3|2.4|+|2.5|*|")
 
 	e = New()
@@ -334,7 +343,10 @@ func Test_expr(t *testing.T) {
 	e.Append(op_25)
 	e.Append(op_add)
 	e.Append(op_26)
-	e.Finalize()
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
 	verif(t, e, "2.3|2.4|+|2.5|*|2.6|+|")
 
 	e = New()
@@ -344,7 +356,10 @@ func Test_expr(t *testing.T) {
 	e.Append(op_add)
 	e.Append(op_not)
 	e.Append(op_25)
-	e.Finalize()
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
 	verif(t, e, "2.3|2.4|+|2.5|not|+|")
 
 	e = New()
@@ -380,7 +395,10 @@ func Test_expr(t *testing.T) {
 	e.Append(op_24)
 	e.Append(op_mul)
 	e.Append(op_25)
-	e.Finalize()
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
 	v, err = e.Exec()
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
@@ -393,7 +411,7 @@ func Test_expr(t *testing.T) {
 	e = New()
 	e.Append(op_add)
 	e.Append(op_add)
-	e.Finalize()
+	e.Finalize() // error intentionnaly not check
 	e.done = true // force done
 	_, err = e.Exec()
 	if err == nil {
@@ -403,7 +421,7 @@ func Test_expr(t *testing.T) {
 	e = New()
 	e.Append(op_23)
 	e.Append(op_24)
-	e.Finalize()
+	e.Finalize() // error intentionnaly not check
 	e.done = true // force done
 	_, err = e.Exec()
 	if err == nil {
@@ -416,7 +434,10 @@ func Test_expr(t *testing.T) {
 	e.Append(op_false)
 	e.Append(op_or)
 	e.Append(op_true)
-	e.Finalize()
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
 	v, err = e.Exec()
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
