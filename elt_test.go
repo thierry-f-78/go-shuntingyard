@@ -5,8 +5,6 @@ import "testing"
 type test struct {
 	precedence int
 	associativity int
-	needs_elements int
-	return_elements int
 	kind int
 	symbol string
 	input_types [][]int
@@ -15,8 +13,6 @@ type test struct {
 
 func (t *test)Precedence()(int) { return t.precedence }
 func (t *test)Associativity()(int) { return t.associativity }
-func (t *test)Needs_elements()(int) { return t.needs_elements }
-func (t *test)Return_elements()(int) { return t.return_elements }
 func (t *test)Kind()(int) { return t.kind }
 func (t *test)String()(string) { return t.symbol }
 func (t *test)Input_types()([][]int) { return t.input_types }
@@ -62,8 +58,6 @@ var op_close *test = &test{
 var op_add *test = &test{
 	precedence: 1,
 	associativity: Associativity_left,
-	needs_elements: 2,
-	return_elements: 1,
 	kind: Kind_operator,
 	symbol: "+",
 	input_types: [][]int{[]int{Type_float64},[]int{Type_float64}},
@@ -73,8 +67,6 @@ var op_add *test = &test{
 var op_coalesce_float *test = &test{
 	precedence: 2,
 	associativity: Associativity_left,
-	needs_elements: 2,
-	return_elements: 1,
 	kind: Kind_operator,
 	symbol: "coalesce_float",
 	input_types: [][]int{[]int{Type_float64,Type_nil},[]int{Type_float64}},
@@ -84,8 +76,6 @@ var op_coalesce_float *test = &test{
 var op_mul *test = &test{
 	precedence: 2,
 	associativity: Associativity_left,
-	needs_elements: 2,
-	return_elements: 1,
 	kind: Kind_operator,
 	symbol: "*",
 	input_types: [][]int{[]int{Type_float64},[]int{Type_float64}},
@@ -95,8 +85,6 @@ var op_mul *test = &test{
 var op_or *test = &test{
 	precedence: 1,
 	associativity: Associativity_left,
-	needs_elements: 2,
-	return_elements: 1,
 	kind: Kind_operator,
 	symbol: "or",
 	input_types: [][]int{[]int{Type_bool},[]int{Type_bool}},
@@ -106,8 +94,6 @@ var op_or *test = &test{
 var op_and *test = &test{
 	precedence: 2,
 	associativity: Associativity_left,
-	needs_elements: 2,
-	return_elements: 1,
 	kind: Kind_operator,
 	symbol: "and",
 	input_types: [][]int{[]int{Type_bool},[]int{Type_bool}},
@@ -117,8 +103,6 @@ var op_and *test = &test{
 var op_neg *test = &test{
 	precedence: 3,
 	associativity: Associativity_right,
-	needs_elements: 1,
-	return_elements: 1,
 	kind: Kind_operator,
 	symbol: "neg",
 	input_types: [][]int{[]int{Type_float64}},
@@ -126,8 +110,6 @@ var op_neg *test = &test{
 }
 
 var op_true *test = &test{
-	needs_elements: 0,
-	return_elements: 1,
 	kind: Kind_value,
 	symbol: "true",
 	input_types: [][]int{},
@@ -135,8 +117,6 @@ var op_true *test = &test{
 }
 
 var op_false *test = &test{
-	needs_elements: 0,
-	return_elements: 1,
 	kind: Kind_value,
 	symbol: "false",
 	input_types: [][]int{},
@@ -144,8 +124,6 @@ var op_false *test = &test{
 }
 
 var op_23 *test = &test{
-	needs_elements: 0,
-	return_elements: 1,
 	kind: Kind_value,
 	symbol: "2.3",
 	input_types: [][]int{},
@@ -153,8 +131,6 @@ var op_23 *test = &test{
 }
 
 var op_24 *test = &test{
-	needs_elements: 0,
-	return_elements: 1,
 	kind: Kind_value,
 	symbol: "2.4",
 	input_types: [][]int{},
@@ -162,8 +138,6 @@ var op_24 *test = &test{
 }
 
 var op_25 *test = &test{
-	needs_elements: 0,
-	return_elements: 1,
 	kind: Kind_value,
 	symbol: "2.5",
 	input_types: [][]int{},
@@ -171,8 +145,6 @@ var op_25 *test = &test{
 }
 
 var op_26 *test = &test{
-	needs_elements: 0,
-	return_elements: 1,
 	kind: Kind_value,
 	symbol: "2.6",
 	input_types: [][]int{},
@@ -180,8 +152,6 @@ var op_26 *test = &test{
 }
 
 var op_26_or_nil *test = &test{
-	needs_elements: 0,
-	return_elements: 1,
 	kind: Kind_value,
 	symbol: "2.6_or_nil",
 	input_types: [][]int{},

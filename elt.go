@@ -45,10 +45,6 @@ type Elt interface {
 	// the associativity of the operator. expect symbol Associativity_*. typically
 	// and/or have left associativity, not has right associativity
 	Associativity()(int)
-	// number of stack elements required
-	Needs_elements()(int)
-	// number of stack elements returned
-	Return_elements()(int)
 	// accepted input type. array of Type_*
 	Input_types()([][]int)
 	// returned output types. array of Type_*
@@ -65,8 +61,6 @@ type Elt interface {
 type elt_cache struct {
 	precedence int
 	associativity int
-	needs_elements int
-	return_elements int
 	input_types [][]int
 	output_types [][]int
 	kind int
@@ -161,8 +155,6 @@ func (e *Expr)Append(elt Elt)(error) {
 	ec = &elt_cache{
 		precedence: elt.Precedence(),
 		associativity: elt.Associativity(),
-		needs_elements: elt.Needs_elements(),
-		return_elements: elt.Return_elements(),
 		input_types: elt.Input_types(),
 		output_types: elt.Output_types(),
 		kind: elt.Kind(),
@@ -306,14 +298,14 @@ func (e *Expr)Finalize()(error) {
 	for _, ec_browse = range e.rpn {
 
 		/* check number of inputs */
-		if len(stack_types) < ec_browse.needs_elements {
+		if len(stack_types) < len(ec_browse.input_types) {
 			return fmt.Errorf("Inconsistent expression, need %d entries, only %d avlaibleat symbol %q",
-			                  ec_browse.needs_elements, len(stack_types), ec_browse.elt.String())
+			                  len(ec_browse.input_types), len(stack_types), ec_browse.elt.String())
 		}
 
 		/* check types of inputs */
-		stack_index = len(stack_types) - ec_browse.needs_elements
-		for i = 0; i < ec_browse.needs_elements; i++ {
+		stack_index = len(stack_types) - len(ec_browse.input_types)
+		for i = 0; i < len(ec_browse.input_types); i++ {
 			if !has_compat(stack_types[stack_index + i], ec_browse.input_types[i]) {
 				return fmt.Errorf("Inconsistent expression, %q needs %s, got %s",
 				                  ec_browse.elt.String(), Type_desc(ec_browse.input_types[i]),
@@ -344,12 +336,12 @@ func (e *Expr)Exec()(*Value, error) {
 	var val []*Value
 
 	for _, ec = range e.rpn {
-		if len(stack) < ec.needs_elements {
+		if len(stack) < len(ec.input_types) {
 			return nil, fmt.Errorf("%q needs %d elements, only %d available",
-			                       ec.elt.String(), ec.needs_elements, len(stack))
+			                       ec.elt.String(), len(ec.input_types), len(stack))
 		}
-		val = ec.elt.Execute(stack[len(stack) - ec.needs_elements:])
-		stack = stack[:len(stack) - ec.needs_elements]
+		val = ec.elt.Execute(stack[len(stack) - len(ec.input_types):])
+		stack = stack[:len(stack) - len(ec.input_types)]
 		stack = append(stack, val...)
 	}
 
