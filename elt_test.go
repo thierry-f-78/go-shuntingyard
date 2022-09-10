@@ -256,7 +256,6 @@ func Test_value(t *testing.T) {
 func Test_expr(t *testing.T) {
 	var e *Expr
 	var err error
-	var v *Value
 
 	e = New()
 	e.done = true
@@ -389,6 +388,13 @@ func Test_expr(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expect error, got no error")
 	}
+
+}
+
+func Test_exec(t *testing.T) {
+	var e *Expr
+	var err error
+	var v *Value
 
 	e = New()
 	e.Append(op_23)
