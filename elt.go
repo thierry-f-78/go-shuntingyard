@@ -113,6 +113,14 @@ func New()(*Expr) {
 	return &Expr{}
 }
 
+func (e *Expr)Dump()() {
+	var ec *elt_cache
+
+	for _, ec = range e.rpn {
+		println(ec.elt.String())
+	}
+}
+
 func (e *Expr)Append(elt Elt)(error) {
 	var ec *elt_cache
 	var ec_browse *elt_cache

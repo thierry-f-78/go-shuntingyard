@@ -158,6 +158,18 @@ func test_panic(t *testing.T, f func()) {
 	f()
 }
 
+func test_nopanic(t *testing.T, f func()) {
+	defer func() {
+		var r interface{}
+
+		r = recover()
+		if r != nil {
+			t.Errorf("Expect success, got panic: %#v", r)
+		}
+	}()
+	f()
+}
+
 func Test_value(t *testing.T) {
 	var v *Value
 
@@ -413,4 +425,17 @@ func Test_expr(t *testing.T) {
 			t.Errorf("Expect result true, got %t", v.Bool())
 		}
 	}
+
+	test_nopanic(t, func() {
+		var e *Expr
+
+		e = New()
+		e.Append(op_true)
+		e.Append(op_and)
+		e.Append(op_false)
+		e.Append(op_or)
+		e.Append(op_true)
+		e.Finalize()
+		e.Dump()
+	})
 }
