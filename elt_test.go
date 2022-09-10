@@ -24,6 +24,7 @@ func (t *test)Execute(vs []*Value)([]*Value) {
 	case "or": return []*Value{Value_bool(vs[0].Bool() || vs[1].Bool())}
 	case "and": return []*Value{Value_bool(vs[0].Bool() && vs[1].Bool())}
 	case "not":  return []*Value{Value_bool(!vs[0].Bool())}
+	case "neg":  return []*Value{Value_float64(-vs[0].Float64())}
 	case "*":  return []*Value{Value_float64(vs[0].Float64() * vs[1].Float64())}
 	case "/":  return []*Value{Value_float64(vs[0].Float64() / vs[1].Float64())}
 	case "+":  return []*Value{Value_float64(vs[0].Float64() + vs[1].Float64())}
@@ -82,13 +83,13 @@ var op_and *test = &test{
 	symbol: "and",
 }
 
-var op_not *test = &test{
+var op_neg *test = &test{
    precedence: 3,
    associativity: Associativity_right,
    needs_elements: 1,
    return_elements: 1,
    kind: Kind_operator,
-	symbol: "not",
+	symbol: "neg",
 }
 
 var op_true *test = &test{
@@ -354,13 +355,13 @@ func Test_expr(t *testing.T) {
 	e.Append(op_add)
 	e.Append(op_24)
 	e.Append(op_add)
-	e.Append(op_not)
+	e.Append(op_neg)
 	e.Append(op_25)
 	err = e.Finalize()
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	}
-	verif(t, e, "2.3|2.4|+|2.5|not|+|")
+	verif(t, e, "2.3|2.4|+|2.5|neg|+|")
 
 	e = New()
 	err = e.Append(&test{kind: 8000})
