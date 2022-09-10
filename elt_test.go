@@ -439,3 +439,30 @@ func Test_expr(t *testing.T) {
 		e.Dump()
 	})
 }
+
+func Test_type_desc(t *testing.T) {
+	var types []int
+	var res string
+
+	types = []int{}
+	res = Type_desc(types)
+	if res != "void" {
+		t.Errorf("expect \"void\", got %q", res)
+	}
+
+	types = []int{Type_bool}
+	res = Type_desc(types)
+	if res != "bool" {
+		t.Errorf("expect \"bool\", got %q", res)
+	}
+
+	types = []int{Type_bool, Type_float64, Type_nil}
+	res = Type_desc(types)
+	if res != "bool|float64|nil" {
+		t.Errorf("expect \"bool|float64|nil\", got %q", res)
+	}
+
+	test_panic(t, func() {
+		Type_desc([]int{9000})
+	})
+}

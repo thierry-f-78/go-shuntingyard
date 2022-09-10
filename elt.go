@@ -1,6 +1,7 @@
 package shuntingyard
 
 import "fmt"
+import "strings"
 
 const (
 	Kind_value = iota
@@ -15,6 +16,27 @@ const (
 	Type_bool
 	Type_float64
 )
+
+func Type_desc(types []int)(string) {
+	var t int
+	var names []string
+
+	if len(types) == 0 {
+		return "void"
+	}
+
+	for _, t = range types {
+		switch t {
+		case Type_nil:     names = append(names, "nil")
+		case Type_bool:    names = append(names, "bool")
+		case Type_float64: names = append(names, "float64")
+		default:
+			panic("unknown type")
+		}
+	}
+
+	return strings.Join(names, "|")
+}
 
 type Elt interface {
 	// the precedence of the operator. high level is high priority on other symbol.
