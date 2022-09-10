@@ -241,6 +241,28 @@ func (e *Expr)Append(elt Elt)(error) {
 	return fmt.Errorf("Unexpected kind value %d", ec.kind)
 }
 
+/* all provided type must be found in required type */
+func has_compat(provide []int, require []int)(bool) {
+	var provided_type int
+	var required_type int
+
+	if len(provide) == 0 || len(require) == 0 {
+		return false
+	}
+
+	for _, provided_type = range provide {
+		for _, required_type = range require {
+			if provided_type == required_type {
+				break
+			}
+		}
+		if provided_type != required_type {
+			return false
+		}
+	}
+	return true
+}
+
 func (e *Expr)Finalize()(error) {
 	var ec_browse *elt_cache
 	var stack_size int
