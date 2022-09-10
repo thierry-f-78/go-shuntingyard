@@ -49,6 +49,10 @@ type Elt interface {
 	Needs_elements()(int)
 	// number of stack elements returned
 	Return_elements()(int)
+	// accepted input type. array of Type_*
+	Input_types()([][]int)
+	// returned output types. array of Type_*
+	Output_types()([][]int)
 	// execute this function
 	Execute([]*Value)([]*Value)
 	// nature of element. Use Kind_*
@@ -63,6 +67,8 @@ type elt_cache struct {
 	associativity int
 	needs_elements int
 	return_elements int
+	input_types [][]int
+	output_types [][]int
 	kind int
 	elt Elt
 }
@@ -157,6 +163,8 @@ func (e *Expr)Append(elt Elt)(error) {
 		associativity: elt.Associativity(),
 		needs_elements: elt.Needs_elements(),
 		return_elements: elt.Return_elements(),
+		input_types: elt.Input_types(),
+		output_types: elt.Output_types(),
 		kind: elt.Kind(),
 		elt: elt,
 	}
@@ -265,7 +273,9 @@ func has_compat(provide []int, require []int)(bool) {
 
 func (e *Expr)Finalize()(error) {
 	var ec_browse *elt_cache
-	var stack_size int
+	var stack_types [][]int
+	var i int
+	var stack_index int
 
 	if e.done {
 		return fmt.Errorf("Expression already finalized")
@@ -293,18 +303,34 @@ func (e *Expr)Finalize()(error) {
 	}
 
 	/* check the compute return one result */
-	stack_size = 0
 	for _, ec_browse = range e.rpn {
-		stack_size -= ec_browse.needs_elements
-		if stack_size < 0 {
-			return fmt.Errorf("Inconsistent expression, need more entries than exists")
+
+		/* check number of inputs */
+		if len(stack_types) < ec_browse.needs_elements {
+			return fmt.Errorf("Inconsistent expression, need %d entries, only %d avlaibleat symbol %q",
+			                  ec_browse.needs_elements, len(stack_types), ec_browse.elt.String())
 		}
-		stack_size += ec_browse.return_elements
+
+		/* check types of inputs */
+		stack_index = len(stack_types) - ec_browse.needs_elements
+		for i = 0; i < ec_browse.needs_elements; i++ {
+			if !has_compat(stack_types[stack_index + i], ec_browse.input_types[i]) {
+				return fmt.Errorf("Inconsistent expression, %q needs %s, got %s",
+				                  ec_browse.elt.String(), Type_desc(ec_browse.input_types[i]),
+				                  Type_desc(stack_types[stack_index + i]))
+			}
+		}
+
+		/* pop entries from stack */
+		stack_types = stack_types[:stack_index]
+
+		/* push output in stack */
+		stack_types = append(stack_types, ec_browse.output_types...)
 	}
-	if stack_size == 0 {
+	if len(stack_types) == 0 {
 		return fmt.Errorf("Expression doesn't return value")
 	}
-	if stack_size != 1 {
+	if len(stack_types) != 1 {
 		return fmt.Errorf("Expression return too many values")
 	}
 
