@@ -568,3 +568,41 @@ func Test_type_desc(t *testing.T) {
 		Type_desc([]int{9000})
 	})
 }
+
+func Test_sub_expression(t *testing.T) {
+	var se *Expr
+	var err error
+
+	se = New([][]int{[]int{Type_float64}})
+	se.Push(op_25)
+	se.Push(op_add)
+	se.Finalize()
+	err = se.Push(op_26)
+	if err == nil {
+		t.Errorf("Expect error, got no error")
+	}
+
+	se = New(nil)
+	se.Push(op_25)
+	se.Push(op_add)
+	se.Push(op_26)
+	err = se.Finalize()
+	if err == nil {
+		t.Errorf("Expect error, got no error")
+	}
+
+	se = New(nil)
+	se.Push(op_25)
+	se.Push(op_26)
+	se.Push(op_add)
+	err = se.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error %s", err.Error())
+	}
+	if se.input_types != nil {
+		t.Errorf("Expect empty input type")
+	}
+	if !reflect.DeepEqual(se.output_types, [][]int{[]int{Type_float64}}) {
+		t.Errorf("Expect \"float64\" output types, got %q", Type_list(se.output_types))
+	}
+}

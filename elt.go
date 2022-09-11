@@ -236,6 +236,32 @@ func (e *Expr)Append(elt Elt)(error) {
 	return fmt.Errorf("Unexpected kind value %d", ec.kind)
 }
 
+// Just push element. This is not compatible with the Append function.
+// the Push function is used to build your own expression stack using
+// RPN order. Mixing Push and Append return undefined result.
+func (e *Expr)Push(elt Elt)(error) {
+	var ec *elt_cache
+
+	if e.done {
+		return fmt.Errorf("Expression already finalized")
+	}
+
+	/* convert to elt cache */
+	ec = &elt_cache{
+		precedence: elt.Precedence(),
+		associativity: elt.Associativity(),
+		input_types: elt.Input_types(),
+		output_types: elt.Output_types(),
+		kind: elt.Kind(),
+		elt: elt,
+	}
+
+	/* push value */
+	e.rpn = append(e.rpn, ec)
+
+	return nil
+}
+
 /* all provided type must be found in required type */
 func has_compat(provide []int, require []int)(bool) {
 	var provided_type int
