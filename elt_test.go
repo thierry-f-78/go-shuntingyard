@@ -439,7 +439,7 @@ func Test_expr(t *testing.T) {
 func Test_exec(t *testing.T) {
 	var e *Expr
 	var err error
-	var v *Value
+	var v []*Value
 
 	e = New(nil)
 	e.Append(op_23)
@@ -451,15 +451,19 @@ func Test_exec(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	}
-	v, err = e.Exec()
+	v, err = e.Execute(nil)
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	} else {
-		if v.Kind != Type_float64 {
-			t.Errorf("Expect float, got %s", Type_string(v.Kind))
-		}
-		if v.Value_float64 != 8.3 {
-			t.Errorf("Expect result 8.3, got %f", v.Value_float64)
+		if len(v) != 1 {
+			t.Errorf("Expect only one value as return, got %d", len(v))
+		} else {
+			if v[0].Kind != Type_float64 {
+				t.Errorf("Expect float, got %s", Type_string(v[0].Kind))
+			}
+			if v[0].Value_float64 != 8.3 {
+				t.Errorf("Expect result 8.3, got %f", v[0].Value_float64)
+			}
 		}
 	}
 
@@ -468,7 +472,7 @@ func Test_exec(t *testing.T) {
 	e.Append(op_add)
 	e.Finalize() // error intentionnaly not check
 	e.done = true // force done
-	_, err = e.Exec()
+	_, err = e.Execute(nil)
 	if err == nil {
 		t.Errorf("Expect error, got no error")
 	}
@@ -478,7 +482,7 @@ func Test_exec(t *testing.T) {
 	e.Append(op_24)
 	e.Finalize() // error intentionnaly not check
 	e.done = true // force done
-	_, err = e.Exec()
+	_, err = e.Execute(nil)
 	if err == nil {
 		t.Errorf("Expect error, got no error")
 	}
@@ -491,7 +495,7 @@ func Test_exec(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	}
-	_, err = e.Exec()
+	_, err = e.Execute(nil)
 	if err == nil {
 		t.Errorf("Expect error")
 	}
@@ -506,15 +510,19 @@ func Test_exec(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	}
-	v, err = e.Exec()
+	v, err = e.Execute(nil)
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	} else {
-		if v.Kind != Type_bool {
-			t.Errorf("Expect bool, got %s", Type_string(v.Kind))
-		}
-		if !v.Value_bool {
-			t.Errorf("Expect result true, got %t", v.Value_bool)
+		if len(v) != 1 {
+			t.Errorf("Expect only one value as return, got %d", len(v))
+		} else {
+			if v[0].Kind != Type_bool {
+				t.Errorf("Expect bool, got %s", Type_string(v[0].Kind))
+			}
+			if !v[0].Value_bool {
+				t.Errorf("Expect result true, got %t", v[0].Value_bool)
+			}
 		}
 	}
 
@@ -609,8 +617,10 @@ func Test_name(t *testing.T) {
 }
 
 func Test_sub_expression(t *testing.T) {
+	var e *Expr
 	var se *Expr
 	var err error
+	var v []*Value
 
 	se = New([][]int{[]int{Type_float64}})
 	se.Push(op_25)
@@ -643,5 +653,30 @@ func Test_sub_expression(t *testing.T) {
 	}
 	if !reflect.DeepEqual(se.output_types, [][]int{[]int{Type_float64}}) {
 		t.Errorf("Expect \"float64\" output types, got %q", Type_list(se.output_types))
+	}
+
+	e = New(nil)
+	e.Append(se)
+	e.Append(op_mul)
+	e.Append(se)
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error %s", err.Error())
+	}
+	v, err = e.Execute(nil)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	} else {
+		if len(v) != 1 {
+			t.Errorf("Expect only one value as return, got %d", len(v))
+		} else {
+			if v[0].Kind != Type_float64 {
+				t.Errorf("Expect float, got %s", Type_string(v[0].Kind))
+			}
+			/* 26.01 equality not match with floats */
+			if v[0].Value_float64 < 26.0099999 && v[0].Value_float64 > 26.01 {
+				t.Errorf("Expect result 26.01, got %f", v[0].Value_float64)
+			}
+		}
 	}
 }

@@ -126,6 +126,22 @@ type Expr struct {
 	name string
 }
 
+/* Implement Elt interface for Expr expression, except Execute which is located below */
+func (e *Expr) Precedence()(int) {
+	return 0
+}
+func (e *Expr) Associativity()(int) {
+	return 0
+}
+func (e *Expr) Input_types()([][]int) {
+	return e.input_types
+}
+func (e *Expr) Output_types()([][]int) {
+	return e.output_types
+}
+func (e *Expr) Kind()(int) {
+	return Kind_value
+}
 func (e *Expr) String()(string) {
 	return e.name
 }
@@ -379,11 +395,15 @@ func (e *Expr)Finalize()(error) {
 	return nil
 }
 
-func (e *Expr)Exec()(*Value, error) {
+/* part of implementation of Elt interface for Expr expression */
+func (e *Expr)Execute(in []*Value)([]*Value, error) {
 	var stack []*Value
 	var ec *elt_cache
 	var val []*Value
 	var err error
+
+	/* push input value in the stack */
+	stack = append(stack, in...)
 
 	for _, ec = range e.rpn {
 		if len(stack) < len(ec.input_types) {
@@ -402,7 +422,7 @@ func (e *Expr)Exec()(*Value, error) {
 		return nil, fmt.Errorf("Expression return too many values")
 	}
 
-	return stack[0], nil
+	return stack, nil
 }
 
 
