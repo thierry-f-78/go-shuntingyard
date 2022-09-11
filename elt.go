@@ -418,10 +418,6 @@ func (e *Expr)Execute(in []*Value)([]*Value, error) {
 		stack = append(stack, val...)
 	}
 
-	if len(stack) != 1 {
-		return nil, fmt.Errorf("Expression return too many values")
-	}
-
 	return stack, nil
 }
 

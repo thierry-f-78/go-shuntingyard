@@ -479,16 +479,6 @@ func Test_exec(t *testing.T) {
 
 	e = New(nil)
 	e.Append(op_23)
-	e.Append(op_24)
-	e.Finalize() // error intentionnaly not check
-	e.done = true // force done
-	_, err = e.Execute(nil)
-	if err == nil {
-		t.Errorf("Expect error, got no error")
-	}
-	
-	e = New(nil)
-	e.Append(op_23)
 	e.Append(op_add_error)
 	e.Append(op_24)
 	err = e.Finalize()
