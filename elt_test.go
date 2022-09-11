@@ -522,6 +522,11 @@ func Test_type_desc(t *testing.T) {
 		t.Errorf("expect \"bool\", got %q", res)
 	}
 
+	res = Type_list([][]int{[]int{Type_float64, Type_nil},[]int{Type_bool}})
+	if res != "float64|nil, bool" {
+		t.Errorf("expect \"float64|nil, bool\", got %q", res)
+	}
+
 	test_panic(t, func() {
 		Type_desc([]int{9000})
 	})

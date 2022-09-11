@@ -38,6 +38,17 @@ func Type_desc(types []int)(string) {
 	return strings.Join(names, "|")
 }
 
+func Type_list(t [][]int)(string) {
+	var out []string
+	var e []int
+
+	for _, e = range t {
+		out = append(out, Type_desc(e))
+	}
+
+	return strings.Join(out, ", ")
+}
+
 func Type_string(t int)(string) {
 	return Type_desc([]int{t})
 }
