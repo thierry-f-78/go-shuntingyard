@@ -569,6 +569,45 @@ func Test_type_desc(t *testing.T) {
 	})
 }
 
+func Test_name(t *testing.T) {
+	var se *Expr
+	var err error
+
+	se = New(nil)
+	se.Push(op_25)
+	se.Push(op_26)
+	se.Push(op_add)
+	err = se.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error %s", err.Error())
+	}
+	if se.String() != "2.5 2.6 +" {
+		t.Errorf("Expect \"2.5 2.6 +\", got %q", se.String())
+	}
+
+	se = New(nil)
+	se.Append(op_25)
+	se.Append(op_add)
+	se.Append(op_26)
+	err = se.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error %s", err.Error())
+	}
+	if se.String() != "2.5 + 2.6" {
+		t.Errorf("Expect \"2.5 + 2.6\", got %q", se.String())
+	}
+
+	se = New(nil)
+	se.Set_name("name")
+	err = se.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error %s", err.Error())
+	}
+	if se.String() != "name" {
+		t.Errorf("Expect \"name\", got %q", se.String())
+	}
+}
+
 func Test_sub_expression(t *testing.T) {
 	var se *Expr
 	var err error

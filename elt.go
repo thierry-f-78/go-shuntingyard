@@ -121,12 +121,23 @@ type Expr struct {
 	input_types [][]int
 	// indicate kind of returned value
 	output_types [][]int
+	// expression representation
+	name_elements []string
+	name string
+}
+
+func (e *Expr) String()(string) {
+	return e.name
 }
 
 func New(input_values [][]int)(*Expr) {
 	return &Expr{
 		input_types: input_values,
 	}
+}
+
+func (e *Expr)Set_name(n string) {
+	e.name = n
 }
 
 func (e *Expr)Dump()() {
@@ -155,6 +166,9 @@ func (e *Expr)Append(elt Elt)(error) {
 		kind: elt.Kind(),
 		elt: elt,
 	}
+
+	/* build name */
+	e.name_elements = append(e.name_elements, elt.String())
 
 	/* pass value */
 	if ec.kind == Kind_value {
@@ -256,6 +270,9 @@ func (e *Expr)Push(elt Elt)(error) {
 		elt: elt,
 	}
 
+	/* build name */
+	e.name_elements = append(e.name_elements, elt.String())
+
 	/* push value */
 	e.rpn = append(e.rpn, ec)
 
@@ -351,6 +368,12 @@ func (e *Expr)Finalize()(error) {
 	for _, value_type = range stack_types {
 		e.output_types = append(e.output_types, value_type)
 	}
+
+	/* set name */
+	if e.name == "" {
+		e.name =  strings.Join(e.name_elements, " ")
+	}
+	e.name_elements = nil
 
 	e.done = true
 	return nil
