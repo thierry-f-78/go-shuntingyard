@@ -568,6 +568,11 @@ func Test_type_desc(t *testing.T) {
 		t.Errorf("expect \"bool|float64|nil\", got %q", res)
 	}
 
+	res = Type_string(Type_bool)
+	if res != "bool" {
+		t.Errorf("expect \"bool\", got %q", res)
+	}
+
 	test_panic(t, func() {
 		Type_desc([]int{9000})
 	})

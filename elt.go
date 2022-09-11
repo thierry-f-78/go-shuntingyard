@@ -38,6 +38,10 @@ func Type_desc(types []int)(string) {
 	return strings.Join(names, "|")
 }
 
+func Type_string(t int)(string) {
+	return Type_desc([]int{t})
+}
+
 type Elt interface {
 	// the precedence of the operator. high level is high priority on other symbol.
 	// typically or=1, and=2, not=3
