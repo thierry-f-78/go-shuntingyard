@@ -491,7 +491,7 @@ func Test_exec(t *testing.T) {
 		e.Append(op_or)
 		e.Append(op_true)
 		e.Finalize()
-		e.Dump()
+		e.Dump() /* test dump function */
 	})
 }
 
