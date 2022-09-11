@@ -1,5 +1,6 @@
 package shuntingyard
 
+import "fmt"
 import "reflect"
 import "testing"
 
@@ -18,28 +19,29 @@ func (t *test)Kind()(int) { return t.kind }
 func (t *test)String()(string) { return t.symbol }
 func (t *test)Input_types()([][]int) { return t.input_types }
 func (t *test)Output_types()([][]int) { return t.output_types }
-func (t *test)Execute(vs []*Value)([]*Value) {
+func (t *test)Execute(vs []*Value)([]*Value, error) {
 	switch t.symbol {
-	case "true": return []*Value{Value_bool(true)}
-	case "false": return []*Value{Value_bool(false)}
-	case "or": return []*Value{Value_bool(vs[0].Value_bool || vs[1].Value_bool)}
-	case "and": return []*Value{Value_bool(vs[0].Value_bool && vs[1].Value_bool)}
-	case "not":  return []*Value{Value_bool(!vs[0].Value_bool)}
-	case "neg":  return []*Value{Value_float64(-vs[0].Value_float64)}
-	case "*":  return []*Value{Value_float64(vs[0].Value_float64 * vs[1].Value_float64)}
-	case "/":  return []*Value{Value_float64(vs[0].Value_float64 / vs[1].Value_float64)}
-	case "+":  return []*Value{Value_float64(vs[0].Value_float64 + vs[1].Value_float64)}
-	case "-":  return []*Value{Value_float64(vs[0].Value_float64 - vs[1].Value_float64)}
-	case "2.3":  return []*Value{Value_float64(2.3)}
-	case "2.4":  return []*Value{Value_float64(2.4)}
-	case "2.5":  return []*Value{Value_float64(2.5)}
-	case "2.6":  return []*Value{Value_float64(2.6)}
-	case "2.6_or_nil":  return []*Value{Value_float64(2.6)}
-	case "coalesce_float": return func(in []*Value)([]*Value) {
+	case "true": return []*Value{Value_bool(true)}, nil
+	case "false": return []*Value{Value_bool(false)}, nil
+	case "or": return []*Value{Value_bool(vs[0].Value_bool || vs[1].Value_bool)}, nil
+	case "and": return []*Value{Value_bool(vs[0].Value_bool && vs[1].Value_bool)}, nil
+	case "not":  return []*Value{Value_bool(!vs[0].Value_bool)}, nil
+	case "neg":  return []*Value{Value_float64(-vs[0].Value_float64)}, nil
+	case "*":  return []*Value{Value_float64(vs[0].Value_float64 * vs[1].Value_float64)}, nil
+	case "/":  return []*Value{Value_float64(vs[0].Value_float64 / vs[1].Value_float64)}, nil
+	case "+":  return []*Value{Value_float64(vs[0].Value_float64 + vs[1].Value_float64)}, nil
+	case "+e": return nil, fmt.Errorf("This is a %s error", t.symbol)
+	case "-":  return []*Value{Value_float64(vs[0].Value_float64 - vs[1].Value_float64)}, nil
+	case "2.3":  return []*Value{Value_float64(2.3)}, nil
+	case "2.4":  return []*Value{Value_float64(2.4)}, nil
+	case "2.5":  return []*Value{Value_float64(2.5)}, nil
+	case "2.6":  return []*Value{Value_float64(2.6)}, nil
+	case "2.6_or_nil":  return []*Value{Value_float64(2.6)}, nil
+	case "coalesce_float": return func(in []*Value)([]*Value, error) {
 		if in[0].Kind == Type_float64 {
-			return []*Value{Value_float64(in[0].Value_float64)}
+			return []*Value{Value_float64(in[0].Value_float64)}, nil
 		} else {
-			return []*Value{Value_float64(in[1].Value_float64)}
+			return []*Value{Value_float64(in[1].Value_float64)}, nil
 		}
 	}(vs)
 	default: panic("unknown operator")
@@ -54,6 +56,15 @@ var op_open *test = &test{
 var op_close *test = &test{
 	kind: Kind_group_close,
 	symbol: ")",
+}
+
+var op_add_error *test = &test{
+	precedence: 1,
+	associativity: Associativity_left,
+	kind: Kind_operator,
+	symbol: "+e",
+	input_types: [][]int{[]int{Type_float64},[]int{Type_float64}},
+	output_types: [][]int{[]int{Type_float64}},
 }
 
 var op_add *test = &test{
@@ -472,6 +483,19 @@ func Test_exec(t *testing.T) {
 		t.Errorf("Expect error, got no error")
 	}
 	
+	e = New(nil)
+	e.Append(op_23)
+	e.Append(op_add_error)
+	e.Append(op_24)
+	err = e.Finalize()
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err.Error())
+	}
+	_, err = e.Exec()
+	if err == nil {
+		t.Errorf("Expect error")
+	}
+
 	e = New(nil)
 	e.Append(op_true)
 	e.Append(op_and)

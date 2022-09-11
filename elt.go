@@ -65,7 +65,7 @@ type Elt interface {
 	// returned output types. array of Type_*
 	Output_types()([][]int)
 	// execute this function
-	Execute([]*Value)([]*Value)
+	Execute([]*Value)([]*Value, error)
 	// nature of element. Use Kind_*
 	Kind()(int)
 	// display element
@@ -333,13 +333,17 @@ func (e *Expr)Exec()(*Value, error) {
 	var stack []*Value
 	var ec *elt_cache
 	var val []*Value
+	var err error
 
 	for _, ec = range e.rpn {
 		if len(stack) < len(ec.input_types) {
 			return nil, fmt.Errorf("%q needs %d elements, only %d available",
 			                       ec.elt.String(), len(ec.input_types), len(stack))
 		}
-		val = ec.elt.Execute(stack[len(stack) - len(ec.input_types):])
+		val, err = ec.elt.Execute(stack[len(stack) - len(ec.input_types):])
+		if err != nil {
+			return nil, err
+		}
 		stack = stack[:len(stack) - len(ec.input_types)]
 		stack = append(stack, val...)
 	}
