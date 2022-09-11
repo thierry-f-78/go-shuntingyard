@@ -137,6 +137,7 @@ func (e *Expr)Dump()() {
 	}
 }
 
+// Append element to the expression using shuntingyard algorithm
 func (e *Expr)Append(elt Elt)(error) {
 	var ec *elt_cache
 	var ec_browse *elt_cache
