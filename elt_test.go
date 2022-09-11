@@ -234,27 +234,27 @@ func Test_value(t *testing.T) {
 
 func Test_compat(t *testing.T) {
 
-	if (has_compat([]int{1}, []int{2, 3, 4})) {
+	if (Has_compat([]int{1}, []int{2, 3, 4})) {
 		t.Errorf("expect false, got true")
 	}
 
-	if (has_compat([]int{10, 20}, []int{10})) {
+	if (Has_compat([]int{10, 20}, []int{10})) {
 		t.Errorf("expect false, got true")
 	}
 
-	if (!has_compat([]int{10}, []int{10, 20})) {
+	if (!Has_compat([]int{10}, []int{10, 20})) {
 		t.Errorf("expect true, got false")
 	}
 
-	if (!has_compat([]int{1,2,3}, []int{3,2,1})) {
+	if (!Has_compat([]int{1,2,3}, []int{3,2,1})) {
 		t.Errorf("expect true, got false")
 	}
 
-	if (has_compat([]int{10, 20}, []int{})) {
+	if (Has_compat([]int{10, 20}, []int{})) {
 		t.Errorf("expect true, got false")
 	}
 
-	if (has_compat([]int{}, []int{10, 20})) {
+	if (Has_compat([]int{}, []int{10, 20})) {
 		t.Errorf("expect true, got false")
 	}
 

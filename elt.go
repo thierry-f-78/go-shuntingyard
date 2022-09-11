@@ -296,7 +296,7 @@ func (e *Expr)Push(elt Elt)(error) {
 }
 
 /* all provided type must be found in required type */
-func has_compat(provide []int, require []int)(bool) {
+func Has_compat(provide []int, require []int)(bool) {
 	var provided_type int
 	var required_type int
 
@@ -366,7 +366,7 @@ func (e *Expr)Finalize()(error) {
 		/* check types of inputs */
 		stack_index = len(stack_types) - len(ec_browse.input_types)
 		for i = 0; i < len(ec_browse.input_types); i++ {
-			if !has_compat(stack_types[stack_index + i], ec_browse.input_types[i]) {
+			if !Has_compat(stack_types[stack_index + i], ec_browse.input_types[i]) {
 				return fmt.Errorf("Inconsistent expression, %q needs %s, got %s",
 				                  ec_browse.elt.String(), Type_desc(ec_browse.input_types[i]),
 				                  Type_desc(stack_types[stack_index + i]))
