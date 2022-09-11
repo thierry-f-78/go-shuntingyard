@@ -518,11 +518,20 @@ func Test_exec(t *testing.T) {
 
 	test_nopanic(t, func() {
 		var e *Expr
+		var e2 *Expr
+
+		e2 = New(nil)
+		e2.Append(op_true)
+		e2.Append(op_and)
+		e2.Append(op_false)
+		e2.Append(op_or)
+		e2.Append(op_true)
+		e2.Finalize()
 
 		e = New(nil)
 		e.Append(op_true)
 		e.Append(op_and)
-		e.Append(op_false)
+		e.Append(e2)
 		e.Append(op_or)
 		e.Append(op_true)
 		e.Finalize()

@@ -1,6 +1,7 @@
 package shuntingyard
 
 import "fmt"
+import "os"
 import "strings"
 
 const (
@@ -156,12 +157,24 @@ func (e *Expr)Set_name(n string) {
 	e.name = n
 }
 
-func (e *Expr)Dump()() {
+func (e *Expr)dump(level int)() {
 	var ec *elt_cache
+	var ex *Expr
+	var ok bool
 
+	fmt.Fprintf(os.Stderr, "%s[%s]:\n", strings.Repeat("|   ", level - 1), e.String())
 	for _, ec = range e.rpn {
-		println(ec.elt.String())
+		ex, ok = ec.elt.(*Expr)
+		if ok {
+			ex.dump(level + 1)
+		} else {
+			fmt.Fprintf(os.Stderr, "%s%s\n", strings.Repeat("|   ", level), ec.elt.String())
+		}
 	}
+}
+
+func (e *Expr)Dump()() {
+	e.dump(1)
 }
 
 // Append element to the expression using shuntingyard algorithm
