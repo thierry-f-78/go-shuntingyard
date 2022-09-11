@@ -299,7 +299,7 @@ func (e *Expr)Finalize()(error) {
 
 		/* check number of inputs */
 		if len(stack_types) < len(ec_browse.input_types) {
-			return fmt.Errorf("Inconsistent expression, need %d entries, only %d avlaibleat symbol %q",
+			return fmt.Errorf("Inconsistent expression, need %d entries, only %d available at symbol %q",
 			                  len(ec_browse.input_types), len(stack_types), ec_browse.elt.String())
 		}
 
