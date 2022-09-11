@@ -21,14 +21,14 @@ func (t *test)Execute(vs []*Value)([]*Value) {
 	switch t.symbol {
 	case "true": return []*Value{Value_bool(true)}
 	case "false": return []*Value{Value_bool(false)}
-	case "or": return []*Value{Value_bool(vs[0].Bool() || vs[1].Bool())}
-	case "and": return []*Value{Value_bool(vs[0].Bool() && vs[1].Bool())}
-	case "not":  return []*Value{Value_bool(!vs[0].Bool())}
-	case "neg":  return []*Value{Value_float64(-vs[0].Float64())}
-	case "*":  return []*Value{Value_float64(vs[0].Float64() * vs[1].Float64())}
-	case "/":  return []*Value{Value_float64(vs[0].Float64() / vs[1].Float64())}
-	case "+":  return []*Value{Value_float64(vs[0].Float64() + vs[1].Float64())}
-	case "-":  return []*Value{Value_float64(vs[0].Float64() - vs[1].Float64())}
+	case "or": return []*Value{Value_bool(vs[0].Value_bool || vs[1].Value_bool)}
+	case "and": return []*Value{Value_bool(vs[0].Value_bool && vs[1].Value_bool)}
+	case "not":  return []*Value{Value_bool(!vs[0].Value_bool)}
+	case "neg":  return []*Value{Value_float64(-vs[0].Value_float64)}
+	case "*":  return []*Value{Value_float64(vs[0].Value_float64 * vs[1].Value_float64)}
+	case "/":  return []*Value{Value_float64(vs[0].Value_float64 / vs[1].Value_float64)}
+	case "+":  return []*Value{Value_float64(vs[0].Value_float64 + vs[1].Value_float64)}
+	case "-":  return []*Value{Value_float64(vs[0].Value_float64 - vs[1].Value_float64)}
 	case "2.3":  return []*Value{Value_float64(2.3)}
 	case "2.4":  return []*Value{Value_float64(2.4)}
 	case "2.5":  return []*Value{Value_float64(2.5)}
@@ -198,83 +198,26 @@ func test_nopanic(t *testing.T, f func()) {
 func Test_value(t *testing.T) {
 	var v *Value
 
-	v = Value_bool(false)
-	if v.Bool() {
-		t.Errorf("Expect result false, got %t", v.Bool())
-	}
-
 	v = Value_bool(true)
-	if !v.Bool() {
-		t.Errorf("Expect result true, got %t", v.Bool())
+	if v.Kind != Type_bool {
+		t.Errorf("Expect type bool, got %s", Type_string(v.Kind))
+	}
+	if !v.Value_bool {
+		t.Errorf("Expect value true, got %t", v.Value_bool)
 	}
 
-	v = Value_float64(0.0)
-	if v.Bool() {
-		t.Errorf("Expect result false, got %t", v.Bool())
+	v = Value_float64(1.2)
+	if v.Kind != Type_float64 {
+		t.Errorf("Expect type float64, got %s", Type_string(v.Kind))
 	}
-
-	v = Value_float64(1.0)
-	if !v.Bool() {
-		t.Errorf("Expect result true, got %t", v.Bool())
+	if v.Value_float64 != 1.2 {
+		t.Errorf("Expect value true, got %t", v.Value_bool)
 	}
 
 	v = Value_nil()
-	if v.Bool() {
-		t.Errorf("Expect result false, got %t", v.Bool())
+	if v.Kind != Type_nil {
+		t.Errorf("Expect type nil, got %s", Type_string(v.Kind))
 	}
-
-	v = Value_float64(1.0)
-	if v.Float64() != 1.0 {
-		t.Errorf("Expect result 1.0, got %f", v.Float64())
-	}
-
-	v = Value_bool(false)
-	if v.Float64() != 0.0 {
-		t.Errorf("Expect result 0.0, got %f", v.Float64())
-	}
-
-	v = Value_bool(true)
-	if v.Float64() != 1.0 {
-		t.Errorf("Expect result 1.0, got %f", v.Float64())
-	}
-
-	v = Value_nil()
-	if v.Float64() != 0.0 {
-		t.Errorf("Expect result 0.0, got %f", v.Float64())
-	}
-
-	v = Value_float64(1.44)
-	if v.String() != "1.440000" {
-		t.Errorf("Expect result \"1.440000\", got %q", v.String())
-	}
-
-	v = Value_bool(true)
-	if v.String() != "true" {
-		t.Errorf("Expect result \"true\", got %q", v.String())
-	}
-
-	v = Value_nil()
-	if v.String() != "nil" {
-		t.Errorf("Expect result \"nil\", got %q", v.String())
-	}
-
-	test_panic(t, func(){
-		v = Value_float64(0.0)
-		v.Kind = 5000
-		v.Bool()
-	})
-
-	test_panic(t, func(){
-		v = Value_float64(0.0)
-		v.Kind = 5000
-		v.Float64()
-	})
-
-	test_panic(t, func(){
-		v = Value_float64(0.0)
-		v.Kind = 5000
-		v.String()
-	})
 }
 
 func Test_compat(t *testing.T) {
@@ -488,8 +431,11 @@ func Test_exec(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	} else {
-		if v.Float64() != 8.3 {
-			t.Errorf("Expect result 8.3, got %f", v.Float64())
+		if v.Kind != Type_float64 {
+			t.Errorf("Expect float, got %s", Type_string(v.Kind))
+		}
+		if v.Value_float64 != 8.3 {
+			t.Errorf("Expect result 8.3, got %f", v.Value_float64)
 		}
 	}
 
@@ -527,8 +473,11 @@ func Test_exec(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err.Error())
 	} else {
-		if !v.Bool() {
-			t.Errorf("Expect result true, got %t", v.Bool())
+		if v.Kind != Type_bool {
+			t.Errorf("Expect bool, got %s", Type_string(v.Kind))
+		}
+		if !v.Value_bool {
+			t.Errorf("Expect result true, got %t", v.Value_bool)
 		}
 	}
 

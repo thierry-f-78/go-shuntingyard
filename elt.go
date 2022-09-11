@@ -100,33 +100,6 @@ func Value_float64(v float64)(*Value) {
 	}
 }
 
-func (v *Value)Float64()(float64) {
-	switch v.Kind {
-	case Type_float64: return v.Value_float64
-	case Type_bool: if v.Value_bool { return 1.0 } else { return 0.0 }	
-	case Type_nil: return 0.0
-	default: panic("unexpected type")
-	}
-}
-
-func (v *Value)Bool()(bool) {
-	switch v.Kind {
-	case Type_bool: return v.Value_bool
-	case Type_float64: if v.Value_float64 == 0.0 { return false } else { return true }
-	case Type_nil: return false
-	default: panic("unexpected type")
-	}
-}
-
-func (v *Value)String()(string) {
-	switch v.Kind {
-	case Type_float64: return fmt.Sprintf("%f", v.Value_float64)
-	case Type_bool:    return fmt.Sprintf("%t", v.Value_bool)
-	case Type_nil:     return "nil"
-	default: panic("unexpected type")
-	}
-}
-
 type Expr struct {
 	rpn []*elt_cache
 	// precedence stack (only used during parsing of stack)
