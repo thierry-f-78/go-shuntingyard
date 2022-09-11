@@ -1,5 +1,6 @@
 package shuntingyard
 
+import "reflect"
 import "testing"
 
 type test struct {
@@ -252,7 +253,7 @@ func Test_expr(t *testing.T) {
 	var e *Expr
 	var err error
 
-	e = New()
+	e = New(nil)
 	e.done = true
 	err = e.Append(op_23)
 	if err == nil {
@@ -263,7 +264,7 @@ func Test_expr(t *testing.T) {
 		t.Errorf("Expect error, got no error")
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_add)
 	e.Append(op_24)
@@ -273,7 +274,7 @@ func Test_expr(t *testing.T) {
 	}
 	verif(t, e, "2.3|2.4|+|")
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_add)
 	e.Append(op_24)
@@ -285,13 +286,13 @@ func Test_expr(t *testing.T) {
 	}
 	verif(t, e, "2.3|2.4|2.5|*|+|")
 
-	e = New()
+	e = New(nil)
 	err = e.Append(op_close)
 	if err == nil {
 		t.Errorf("Expect error, got no error")
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_add)
 	e.Append(op_24)
@@ -302,7 +303,7 @@ func Test_expr(t *testing.T) {
 		t.Errorf("Expect error, got no error")
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_open)
 	e.Append(op_add)
@@ -314,7 +315,7 @@ func Test_expr(t *testing.T) {
 		t.Errorf("Expect error, got no error")
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_open)
 	e.Append(op_23)
 	e.Append(op_add)
@@ -328,7 +329,7 @@ func Test_expr(t *testing.T) {
 	}
 	verif(t, e, "2.3|2.4|+|2.5|*|")
 
-	e = New()
+	e = New(nil)
 	e.Append(op_open)
 	e.Append(op_23)
 	e.Append(op_add)
@@ -344,7 +345,7 @@ func Test_expr(t *testing.T) {
 	}
 	verif(t, e, "2.3|2.4|+|2.5|*|2.6|+|")
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_add)
 	e.Append(op_24)
@@ -357,34 +358,46 @@ func Test_expr(t *testing.T) {
 	}
 	verif(t, e, "2.3|2.4|+|2.5|neg|+|")
 
-	e = New()
+	e = New(nil)
 	err = e.Append(&test{kind: 8000})
 	if err == nil {
 		t.Errorf("Expect error, got no error")
 	}
 
-	e = New()
+	e = New(nil)
 	err = e.Finalize()
-	if err == nil {
-		t.Errorf("Expect error, got no error")
+	if e.input_types != nil {
+		t.Errorf("Expect empty input types, got %q", Type_list(e.input_types))
+	}
+	if e.output_types != nil {
+		t.Errorf("Expect empty output types, got %q", Type_list(e.output_types))
 	}
 
-	e = New()
+	e = New([][]int{[]int{Type_bool}, []int{Type_float64}})
+	err = e.Finalize()
+	if !reflect.DeepEqual(e.input_types, [][]int{[]int{Type_bool}, []int{Type_float64}}) {
+		t.Errorf("Expect empty input types, got %q", Type_list(e.input_types))
+	}
+	if !reflect.DeepEqual(e.output_types, [][]int{[]int{Type_bool}, []int{Type_float64}}) {
+		t.Errorf("Expect empty output types, got %q", Type_list(e.output_types))
+	}
+
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_23)
 	err = e.Finalize()
-	if err == nil {
-		t.Errorf("Expect error, got no error")
+	if !reflect.DeepEqual(e.output_types, [][]int{[]int{Type_float64}, []int{Type_float64}}) {
+		t.Errorf("Expect \"float64, float64\" output types, got %q", Type_list(e.output_types))
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_add)
 	err = e.Finalize()
 	if err == nil {
 		t.Errorf("Expect error, got no error")
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_add)
 	e.Append(op_true)
@@ -393,7 +406,7 @@ func Test_expr(t *testing.T) {
 		t.Errorf("Expected error")
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_26_or_nil)
 	e.Append(op_coalesce_float)
 	e.Append(op_26)
@@ -402,7 +415,7 @@ func Test_expr(t *testing.T) {
 		t.Errorf("Unexpected error: %s", err.Error())
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_26)
 	e.Append(op_coalesce_float)
 	e.Append(op_26_or_nil)
@@ -417,7 +430,7 @@ func Test_exec(t *testing.T) {
 	var err error
 	var v *Value
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_add)
 	e.Append(op_24)
@@ -439,7 +452,7 @@ func Test_exec(t *testing.T) {
 		}
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_add)
 	e.Append(op_add)
 	e.Finalize() // error intentionnaly not check
@@ -449,7 +462,7 @@ func Test_exec(t *testing.T) {
 		t.Errorf("Expect error, got no error")
 	}
 
-	e = New()
+	e = New(nil)
 	e.Append(op_23)
 	e.Append(op_24)
 	e.Finalize() // error intentionnaly not check
@@ -459,7 +472,7 @@ func Test_exec(t *testing.T) {
 		t.Errorf("Expect error, got no error")
 	}
 	
-	e = New()
+	e = New(nil)
 	e.Append(op_true)
 	e.Append(op_and)
 	e.Append(op_false)
@@ -484,7 +497,7 @@ func Test_exec(t *testing.T) {
 	test_nopanic(t, func() {
 		var e *Expr
 
-		e = New()
+		e = New(nil)
 		e.Append(op_true)
 		e.Append(op_and)
 		e.Append(op_false)

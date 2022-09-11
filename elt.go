@@ -117,10 +117,16 @@ type Expr struct {
 	precedence_stack []*elt_cache
 	// indicate stack ready
 	done bool
+	// indicates kind of consumed value
+	input_types [][]int
+	// indicate kind of returned value
+	output_types [][]int
 }
 
-func New()(*Expr) {
-	return &Expr{}
+func New(input_values [][]int)(*Expr) {
+	return &Expr{
+		input_types: input_values,
+	}
 }
 
 func (e *Expr)Dump()() {
@@ -256,6 +262,7 @@ func (e *Expr)Finalize()(error) {
 	var stack_types [][]int
 	var i int
 	var stack_index int
+	var value_type []int
 
 	if e.done {
 		return fmt.Errorf("Expression already finalized")
@@ -282,7 +289,12 @@ func (e *Expr)Finalize()(error) {
 		e.precedence_stack = e.precedence_stack[:len(e.precedence_stack) - 1]
 	}
 
-	/* check the compute return one result */
+	/* push inputs in the type_stack */
+	for _, value_type = range e.input_types {
+		stack_types = append(stack_types, value_type)
+	}
+
+	/* check the returned result */
 	for _, ec_browse = range e.rpn {
 
 		/* check number of inputs */
@@ -307,11 +319,10 @@ func (e *Expr)Finalize()(error) {
 		/* push output in stack */
 		stack_types = append(stack_types, ec_browse.output_types...)
 	}
-	if len(stack_types) == 0 {
-		return fmt.Errorf("Expression doesn't return value")
-	}
-	if len(stack_types) != 1 {
-		return fmt.Errorf("Expression return too many values")
+
+	/* store kind of returned value */
+	for _, value_type = range stack_types {
+		e.output_types = append(e.output_types, value_type)
 	}
 
 	e.done = true
